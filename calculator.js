@@ -4,37 +4,120 @@ const previousDisplay = document.getElementById('previous-operation')
 
 // Calculator state
 let currentNumber = '0'
+let previousNumber = ''
+let operator = null
+let hasToReset = false
 
-// Numeric buttons
-const numberButtons = document.querySelectorAll('.btn-number')
+function updateDisplay() {
+    currentDisplay.textContent = currentNumber
+    previousDisplay.textContent = previousNumber
+}
 
-numberButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-        const number = btn.dataset.number
+function addNumber(number) {
+    if (hasToReset) {
+        currentNumber = '0'
+        hasToReset = false
+    }
 
-        // Prevent multiple decimal points
-        if (number === '.' && currentNumber.includes('.')) return
+    // Prevent multiple decimal points
+    if (number === '.' && currentNumber.includes('.')) return
 
+    // Replace '0' with the new number or append the number
+    if (currentNumber === '0' && number !== '.') {
+        currentNumber = number
+    } else {
+        currentNumber += number
+    }
 
-        // Replace '0' with the new number or append the number
-        if (currentNumber === '0' && number !== '.') {
-            currentNumber = number
-        } else {
-            currentNumber += number
+    updateDisplay()
+}
+
+function selectOperator(op) {
+    if (operator && !hasToReset) {
+        calculate()
+    }
+
+    operator = op
+    previousNumber = currentNumber + ' ' + op
+    hasToReset = true
+    updateDisplay()
+}
+
+function calculate() {
+    if (!operator || hasToReset) return
+
+    const previous = parseFloat(previousNumber)
+    const current = parseFloat(currentNumber)
+
+    if (isNaN(previous) || isNaN(current)) return
+
+    let result
+
+    try {
+        switch (operator) {
+            case '+':
+                result = previous + current
+                break
+            case '-':
+                result = previous - current
+                break
+            case '×':
+                result = previous * current
+                break
+            case '÷':
+                if (current === 0) {
+                    throw new Error('No se puede dividir por cero')
+                }
+                result = previous / current
+                break
+            default:
+                return
         }
 
-        currentDisplay.textContent = currentNumber
-    })
-})
+        // Round to prevent float point errors
+        result = Math.round((result + Number.EPSILON) * 100000000) / 100000000
 
-// Clear button
-document.getElementById('clear').addEventListener('click', () => {
+        currentNumber = result.toString()
+        previousNumber = ''
+        operator = null
+        hasToReset = true
+
+    } catch (error) {
+        showError(error.message)
+        return
+    }
+
+    updateDisplay()
+}
+
+function showError(message) {
+    currentDisplay.textContent = 'Error'
+    previousDisplay.textContent = message
+
+    setTimeout(() => {
+        clear()
+    }, 2000)
+}
+
+function clear() {
     currentNumber = '0'
-    currentDisplay.textContent = currentNumber
-    previousDisplay.textContent = '0'
+    previousNumber = ''
+    operator = null
+    hasToReset = false
+    updateDisplay()
+}
+
+// Event listeners
+document.querySelectorAll('.btn-number').forEach(btn => {
+    btn.addEventListener('click', () => addNumber(btn.dataset.number))
 })
 
-// Delete button
+document.querySelectorAll('.btn-operator').forEach(btn => {
+    btn.addEventListener('click', () => selectOperator(btn.dataset.operator))
+})
+
+document.getElementById('equal').addEventListener('click', calculate)
+document.getElementById('clear').addEventListener('click', clear)
 document.getElementById('delete').addEventListener('click', () => {
     if (currentNumber.length > 1) {
         currentNumber = currentNumber.slice(0, -1)
@@ -42,5 +125,5 @@ document.getElementById('delete').addEventListener('click', () => {
         currentNumber = '0'
     }
 
-    currentDisplay.textContent = currentNumber
+    updateDisplay()
 })
