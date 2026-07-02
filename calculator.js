@@ -134,7 +134,7 @@ function renderHistory() {
         div.className = 'history-operation'
         div.textContent = operation
 
-        // When click, use the result form that operation
+        // When click, use the result from that operation
         div.addEventListener('click', () => {
             const result = operation.split(' = ')[1]
 
