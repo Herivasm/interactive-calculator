@@ -127,3 +127,45 @@ document.getElementById('delete').addEventListener('click', () => {
 
     updateDisplay()
 })
+
+document.addEventListener('keydown', (e) => {
+    const key = e.key
+
+    // Numbers and decimal point
+    if ('0123456789.'.includes(key)) {
+        e.preventDefault()
+        addNumber(key)
+    }
+
+    // Operators
+    else if (key === '+' || key === '-' || key === '*' || key === '/') {
+        e.preventDefault()
+        const op = key === '*' ? '×' : key === '/' ? '÷' : key
+        selectOperator(op)
+    }
+
+    // Enter or '=' for calculation
+    else if (key === 'Enter' || key === '=') {
+        e.preventDefault()
+        calculate()
+    }
+
+    // Clear (Escape key)
+    else if (key === 'Escape') {
+        e.preventDefault()
+        clear()
+    }
+
+    // Backspace for delete
+    else if (key === 'Backspace') {
+        e.preventDefault()
+
+        if (currentNumber.length > 1) {
+            currentNumber = currentNumber.slice(0, -1)
+        } else {
+            currentNumber = '0'
+        }
+
+        updateDisplay()
+    }
+})
