@@ -8,6 +8,10 @@ let previousNumber = ''
 let operator = null
 let hasToReset = false
 
+// History
+const historyList = document.getElementById('history-list')
+let history = []
+
 function updateDisplay() {
     currentDisplay.textContent = currentNumber
     previousDisplay.textContent = previousNumber
@@ -77,6 +81,8 @@ function calculate() {
         // Round to prevent float point errors
         result = Math.round((result + Number.EPSILON) * 100000000) / 100000000
 
+        addToHistory(`${previous} ${operator} ${current} = ${result}`)
+
         currentNumber = result.toString()
         previousNumber = ''
         operator = null
@@ -105,6 +111,57 @@ function clear() {
     operator = null
     hasToReset = false
     updateDisplay()
+}
+
+function addToHistory(operation) {
+    history.unshift(operation)
+
+    // Limit to the last 10 operations
+    if (history.length > 10) {
+        history = history.slice(0, 10)
+    }
+
+    renderHistory()
+    saveHistory()
+}
+
+function renderHistory() {
+    // Clear the container
+    historyList.innerHTML = ''
+
+    history.forEach(operation => {
+        const div = document.createElement('div')
+        div.className = 'history-operation'
+        div.textContent = operation
+
+        // When click, use the result form that operation
+        div.addEventListener('click', () => {
+            const result = operation.split(' = ')[1]
+
+            if (result) {
+                currentNumber = result
+                previousNumber = ''
+                operator = null
+                hasToReset = true
+                updateDisplay()
+            }
+        })
+
+        historyList.appendChild(div)
+    })
+}
+
+function saveHistory() {
+    localStorage.setItem('history-calculator', JSON.stringify(history))
+}
+
+function loadHistory() {
+    const saved = localStorage.getItem('history-calculator')
+
+    if (saved) {
+        history = JSON.parse(saved)
+        renderHistory()
+    }
 }
 
 // Event listeners
@@ -169,3 +226,13 @@ document.addEventListener('keydown', (e) => {
         updateDisplay()
     }
 })
+
+// Clear history button
+document.getElementById('clear-history').addEventListener('click', () => {
+    history = []
+    renderHistory()
+    saveHistory()
+})
+
+// Load history at the begin
+loadHistory()

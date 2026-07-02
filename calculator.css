@@ -107,3 +107,48 @@ body {
 .btn-zero {
     grid-column: span 2;
 }
+
+.calculator-container {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+.history {
+  background: white;
+  border-radius: 15px;
+  padding: 20px;
+  width: 250px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.history h3 {
+  margin-bottom: 15px;
+  color: #2c3e50;
+}
+
+.history-operation {
+  padding: 8px;
+  margin: 5px 0;
+  background: #f8f9fa;
+  border-radius: 5px;
+  font-family: monospace;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.history-operation:hover {
+  background: #e9ecef;
+}
+
+#clear-history {
+  width: 100%;
+  padding: 10px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
